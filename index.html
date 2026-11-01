@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#060d1f"><title>NEXORA — Gaming Top-Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060d1f;--panel:#0b1633;--panel2:#0f1d42;--line:#1d3a70;--text:#f2f6ff;--muted:#8fa3cc;--blue:#2b8cff;--cyan:#22c3ff;--green:#2ee59d;--danger:#ff9a9a;--grad:linear-gradient(100deg,#2b8cff,#22c3ff)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;padding-bottom:110px;background:radial-gradient(ellipse 90% 35% at 50% 0,#0f2c63 0,transparent 70%),var(--bg);color:var(--text);font-family:Outfit,system-ui,Arial,sans-serif}
+a{color:inherit;text-decoration:none}.container{width:min(1120px,92%);margin:auto}
+p,.muted{color:var(--muted);line-height:1.6}.green{color:var(--green)}
+header{position:sticky;top:0;z-index:30;background:#060d1fee;border-bottom:1px solid #12285a;backdrop-filter:blur(16px)}
+.nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{width:50px;height:50px;border-radius:15px;background:linear-gradient(135deg,#0c1a3d,#050a18);border:1px solid #2a4f96;display:grid;place-items:center;font-weight:800;font-size:19px;color:var(--cyan);flex:none;box-shadow:0 0 20px #2b8cff44}
+.brand b{display:block;font-size:20px;font-weight:800;letter-spacing:.5px}
+.brand small{display:block;color:var(--cyan);font-size:10px;letter-spacing:2.5px;white-space:nowrap}
+.hright{display:flex;align-items:center;gap:10px}
+.wallet-pill{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:99px;background:var(--grad);font-weight:700;font-size:15px;box-shadow:0 6px 24px #2b8cff55}
+.avatar{width:42px;height:42px;border-radius:50%;border:2px solid var(--blue);display:grid;place-items:center;background:#0b1633;color:var(--cyan);font-weight:700}
+.banner{margin-top:18px;position:relative;overflow:hidden;min-height:190px;border-radius:24px;border:1px solid #2a4f96;padding:26px 24px;display:flex;flex-direction:column;justify-content:center;background:radial-gradient(ellipse at 85% 30%,#1c6bff 0,transparent 45%),radial-gradient(ellipse at 10% 100%,#0a8fb0 0,transparent 50%),linear-gradient(120deg,#0b1a40,#050b1d);box-shadow:0 14px 50px #000a,inset 0 0 40px #2b8cff22}
+.banner:after{content:"";position:absolute;right:-30px;top:-30px;width:190px;height:190px;border:2px solid #22c3ff55;border-radius:50%;box-shadow:0 0 0 24px #22c3ff12,0 0 0 52px #22c3ff0a}
+.banner h2{margin:0;font-size:clamp(26px,6vw,40px);font-weight:800;letter-spacing:-.5px;position:relative;z-index:1}
+.banner p{margin:8px 0 0;position:relative;z-index:1;font-size:14px;color:#b6c9f0;max-width:420px}
+.banner .tag{position:relative;z-index:1;margin-top:14px;align-self:flex-start;padding:7px 14px;border-radius:99px;background:#ffffff14;border:1px solid #ffffff2a;font-size:12px}
+section{padding:22px 0}
+.title{display:flex;align-items:center;gap:12px;margin:0 0 16px;font-size:26px;font-weight:700}
+.title:before{content:"";width:5px;height:30px;border-radius:4px;background:var(--grad)}
+.sub{margin:-8px 0 16px;font-size:14px}
+.tabs{display:flex;gap:10px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;display:flex;align-items:center;gap:9px;padding:14px 24px;border-radius:20px;border:1px solid var(--line);background:#0a1430;color:#cfe0ff;font-size:17px;font-weight:600;font-family:inherit}
+.tab.on{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 8px 28px #2b8cff55}.tab i{font-style:normal}
+.tab.soon{opacity:.55}
+.games{display:flex;gap:16px;overflow-x:auto;padding:14px 4px 6px;scrollbar-width:none}.games::-webkit-scrollbar{display:none}
+.game-card{flex:none;width:118px;text-align:center;cursor:pointer;position:relative;padding:0;border:0;background:none}
+.gicon{width:100%;aspect-ratio:1;border-radius:24px;display:grid;place-items:center;font-size:48px;border:2px solid transparent;transition:.2s}
+.gi-ff{background:linear-gradient(145deg,#1b8fd8,#0b3c78 60%,#e5462d)}
+.gi-pubg{background:linear-gradient(145deg,#6d8296,#2a3a4d 70%,#e0a63b)}
+.game-card h3{margin:10px 0 0;font-size:15px;font-weight:600;color:#cfe0ff;text-transform:uppercase}
+.game-card.active .gicon{border-color:var(--cyan);box-shadow:0 0 0 4px #22c3ff33,0 0 30px #22c3ff55}
+.game-card.active h3{color:var(--cyan)}
+.game-card.active:after{content:"✓";position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;background:var(--cyan);color:#04122b;font-weight:800;display:grid;place-items:center;font-size:15px}
+.sel{display:flex;align-items:center;gap:18px;padding:20px;border-radius:28px;border:1px solid var(--line);background:linear-gradient(150deg,#0e1c44,#091330);margin-top:14px}
+.sel .gicon{width:84px;font-size:38px;border-radius:20px;flex:none}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.badge{padding:5px 13px;border-radius:99px;background:var(--blue);font-size:11px;font-weight:700;letter-spacing:.5px}
+.badge.o{background:none;border:1px solid var(--line);color:#9fc2ff}
+.sel h2{margin:0;font-size:clamp(24px,6vw,34px);font-weight:800;text-transform:uppercase}
+.step{border:1px solid var(--line);border-radius:28px;padding:22px;background:linear-gradient(150deg,#0e1c44,#091330);margin-top:16px}
+.step-h{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.num{width:46px;height:46px;border-radius:14px;background:var(--grad);display:grid;place-items:center;font-weight:800;font-size:20px;flex:none;box-shadow:0 6px 20px #2b8cff55}
+.step-h h3{margin:0;font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+.step-h p{margin:2px 0 0;font-size:13px}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:9px 15px;color:var(--cyan);font-size:12px;background:#ffffff08;font-family:inherit;cursor:pointer}
+.package-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.package{border:1px solid var(--line);background:#0a1430;border-radius:18px;padding:16px 12px;color:var(--text);text-align:left;cursor:pointer;font-family:inherit}
+.package strong,.package span,.package small{display:block}.package strong{font-size:15px}
+.package span{color:var(--cyan);font-weight:800;margin-top:8px;font-size:16px}.package small{color:var(--muted);margin-top:8px;font-size:12px}
+.package.active{border-color:var(--cyan);background:linear-gradient(150deg,#12306b,#0a1a40);box-shadow:0 0 26px #22c3ff33}
+.field{margin:14px 0}.field label{display:block;font-size:12px;margin-bottom:8px;color:#9fb6e0;letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.field input{width:100%;padding:17px 18px;background:#040a1a;border:1px solid var(--line);border-radius:18px;color:#fff;font-size:16px;font-family:ui-monospace,Menlo,monospace}
+.field input:focus{outline:2px solid #22c3ffaa;border-color:transparent}
+.hint{font-size:12px}
+.btn{width:100%;padding:18px;margin-top:14px;border:0;border-radius:18px;background:var(--grad);color:#fff;font-weight:700;font-size:17px;font-family:inherit;cursor:pointer;box-shadow:0 10px 30px #2b8cff44}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.message{display:none;margin-top:14px;padding:13px;border-radius:14px;background:#0f1d42;overflow-wrap:anywhere;font-size:13px;line-height:1.6}
+.message.show{display:block}.message.error{color:var(--danger);border:1px solid #703d4a}.message.ok{color:var(--green);border:1px solid #1d6b52}
+#catalogMessage{margin:0 0 12px}
+.summary-line,.order-row{display:flex;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid #16316a}
+.summary-line span,.order-row small{color:var(--muted)}.summary-line strong.green{color:var(--cyan)}
+.orders{display:grid;gap:10px}
+.order-row{background:#0a1430;border:1px solid var(--line);border-radius:18px;padding:15px;align-items:center}
+.order-row strong,.order-row small{display:block;overflow-wrap:anywhere}
+.status{font-size:11px;color:#ffd78b;text-align:right;display:block;margin-bottom:6px}
+.empty{padding:18px;border:1px dashed var(--line);border-radius:14px;text-align:center;color:var(--muted)}
+.feature-panel,.support{border:1px solid var(--line);border-radius:28px;padding:22px;background:linear-gradient(150deg,#0e1c44,#091330)}
+.feature-panel h3{margin-top:0}.feature-panel .hint{color:var(--muted)}
+.support{display:flex;justify-content:space-between;gap:15px;align-items:center}
+footer{border-top:1px solid #12285a;padding:24px 0;color:var(--muted);font-size:12px;line-height:1.7}
+.wa{position:fixed;right:16px;bottom:calc(112px + env(safe-area-inset-bottom));z-index:25;width:58px;height:58px;border-radius:50%;background:#25d366;display:grid;place-items:center;font-size:28px;box-shadow:0 8px 28px #25d36699}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(5,1fr);align-items:end;padding:10px 6px calc(10px + env(safe-area-inset-bottom));background:#060d1ff2;border-top:1px solid #12285a;backdrop-filter:blur(20px)}
+.bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:5px;padding:7px 2px;border-radius:16px;color:var(--muted);font-size:12px;min-width:0}
+.bottom-nav .nav-icon{font-size:22px;line-height:1}
+.bottom-nav a.active{color:var(--cyan)}
+.bottom-nav a.mid{margin-top:-34px}
+.bottom-nav a.mid .nav-icon{width:62px;height:62px;border-radius:50%;background:var(--grad);display:grid;place-items:center;color:#fff;border:5px solid #060d1f;box-shadow:0 8px 26px #2b8cff77}
+section[id]{scroll-margin-top:90px}
+@media(max-width:700px){.package-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.support{display:block}.sel .gicon{width:72px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* ---- Payment ---- */
+.methods{display:grid;gap:12px}
+.method{display:flex;align-items:center;gap:14px;border:1px solid var(--line);background:#0a1430;border-radius:20px;padding:18px;color:var(--text);text-align:left;cursor:pointer;font-family:inherit;font-size:18px;font-weight:600}
+.method small{display:block;color:var(--muted);font-weight:400;font-size:13px;margin-top:3px}.method .ic{font-size:30px}
+.method.active{border-color:var(--cyan);background:linear-gradient(150deg,#12306b,#0a1a40);box-shadow:0 0 26px #22c3ff33}
+.line{display:flex;justify-content:space-between;gap:10px;padding:13px 0;border-bottom:1px solid #16316a;overflow-wrap:anywhere}
+.line span{color:var(--muted)}.line strong{text-align:right}
+.paybox{display:none}.paybox.show{display:block}
+.qr{display:block;max-width:260px;width:100%;margin:14px auto;border-radius:18px;background:#fff;padding:10px}
+.warn{background:#2a2410;border:1px solid #6b5a1d;color:#ffd78b;border-radius:14px;padding:13px;font-size:13px;line-height:1.6;margin:14px 0}
+.pic{font-size:34px;margin-bottom:8px}
+#catTabs{margin:0 0 12px}
+.cp{margin-left:8px;border:1px solid var(--line);background:#ffffff08;color:var(--cyan);border-radius:8px;padding:4px 10px;font-size:12px;font-family:inherit;cursor:pointer}
+.howto{background:#0a1430;border:1px solid var(--line);border-radius:18px;padding:16px;margin:14px 0;font-size:14px;line-height:1.7;color:#cfe0ff}
+.howto b{display:block;margin-bottom:6px;color:var(--cyan);font-size:15px}.howto ol{margin:0;padding-left:20px}.howto li{margin-bottom:4px}
+/* ---- Bigger layout ---- */
+.container{width:min(1280px,94%)}
+.banner{min-height:250px;padding:36px 30px}.banner h2{font-size:clamp(34px,8vw,56px)}.banner p{font-size:16px;max-width:540px}
+.banner .tag{font-size:13px;padding:9px 16px}
+.title{font-size:32px}.title:before{height:34px}
+.games{gap:20px}.game-card{width:150px}.gicon{font-size:58px}.game-card h3{font-size:17px}
+.sel{padding:26px}.sel .gicon{width:104px;font-size:46px}
+.step{padding:28px}.step-h h3{font-size:23px}.num{width:52px;height:52px;font-size:22px}.step-h p{font-size:14px}
+.package{padding:20px 16px}.package strong{font-size:17px}.package span{font-size:19px}
+.field input{padding:19px 20px;font-size:18px}.btn{padding:21px;font-size:19px}
+.summary-line,.line{font-size:17px}.hint{font-size:13px}
+.how,.feats{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}.feats{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{border:1px solid var(--line);border-radius:24px;padding:22px;background:linear-gradient(150deg,#0e1c44,#091330)}
+.card .n{width:42px;height:42px;border-radius:13px;background:var(--grad);display:grid;place-items:center;font-weight:800;margin-bottom:12px}
+.card h3{margin:0 0 6px;font-size:19px}.card p{margin:0;font-size:14px}
+details{border:1px solid var(--line);border-radius:18px;padding:16px 18px;background:#0a1430;margin-bottom:10px}
+summary{font-weight:600;font-size:17px;cursor:pointer}details p{margin:10px 0 0;font-size:14px}
+@media(min-width:900px){.package-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:800px){.how{grid-template-columns:repeat(2,minmax(0,1fr))}.feats{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><div class="container nav"><a class="brand" href="#home"><span class="mark">NX</span><span><b>NEXORA</b><small>FAST • SECURE • RELIABLE</small></span></a><div class="hright"><a class="wallet-pill" href="#wallet">👛 0/-</a><a class="avatar" href="#profile">G</a></div></div></header>
+<main>
+<div class="container" id="home"><div class="banner"><h2>Gaming Top-Up</h2><p>Free Fire diamonds and PUBG / BGMI UC, ordered in a few taps. Pay with eSewa, Fonepay, Khalti or bank transfer.</p><span class="tag">Verified payments · Real top-up</span></div></div>
+
+<section id="games"><div class="container"><h2 class="title">Select Items</h2><div class="tabs"><button class="tab on" type="button"><i>🎮</i>Games</button><button class="tab soon" type="button" disabled><i>📺</i>Subscription</button><button class="tab soon" type="button" disabled><i>🎟</i>Voucher</button></div>
+<div class="games"><button type="button" class="game-card active" id="game-freefire" onclick="selectGame('freefire')"><div class="gicon gi-ff">🔥</div><h3>Free Fire</h3></button><button type="button" class="game-card" id="game-pubg" onclick="selectGame('pubg')"><div class="gicon gi-pubg">🎯</div><h3>PUBG</h3></button></div>
+<div class="sel"><div class="gicon gi-ff" id="selIcon">🔥</div><div><div class="badges"><span class="badge">100% SECURE</span><span class="badge o">Games</span></div><h2 id="selName">Free Fire</h2></div></div></div></section>
+
+<section id="checkout"><div class="container">
+<div class="step"><div class="step-h"><span class="num">1</span><div><h3>Account Details</h3><p class="hint">Enter required account info for processing this item</p></div></div>
+<form id="orderForm"><div class="field"><label for="playerUid">Player ID *</label><input id="playerUid" required maxlength="80" placeholder="Enter your player UID" autocomplete="off"></div><div class="field"><label for="server">Server / Region</label><input id="server" maxlength="80" placeholder="e.g. Nepal / Asia"></div><p class="hint">Never enter your game password or OTP. We only need your player UID.</p></form></div>
+
+<div class="step" id="topup"><div class="step-h"><span class="num">2</span><div><h3>Select Package</h3><p class="hint">Choose how much you want to top up</p></div></div><div id="catalogMessage" class="message show">Loading packages...</div><div class="tabs" id="catTabs"></div><div class="package-grid" id="packageGrid"></div><p class="hint" id="catNote"></p></div>
+
+<div class="step"><div class="step-h"><span class="num">3</span><div><h3>Payment Method</h3><p class="hint">Choose how you want to pay</p></div></div><div class="methods" id="methodList"></div></div>
+
+<div class="step"><div class="step-h"><span class="num">4</span><div><h3>Order Summary</h3><p class="hint">Check everything, then create your order</p></div></div>
+<div class="summary-line"><span>Game</span><strong id="sGame"></strong></div><div class="summary-line"><span>Package</span><strong id="sPackage">—</strong></div><div class="summary-line"><span>Player UID</span><strong id="sUid">Not entered</strong></div><div class="summary-line"><span>Payment</span><strong id="sMethod">—</strong></div><div class="summary-line"><span>Price</span><strong class="green" id="sPrice">—</strong></div>
+<button class="btn" id="submitBtn" type="submit" form="orderForm" disabled>Loading...</button><div class="message" id="message" role="status"></div></div>
+
+<div class="step paybox" id="payBox"><div class="step-h"><span class="num">5</span><div><h3>Pay &amp; Submit Reference</h3><p class="hint">Pay, then enter your reference number</p></div></div>
+<div class="line"><span>Order Code</span><strong id="pCode"></strong></div><div class="line"><span>Amount</span><strong class="green" id="pAmount"></strong></div><div id="pDetails"></div>
+<img class="qr" id="pQr" alt="QR" style="display:none">
+<button class="btn" id="pDl" type="button" style="display:none">⬇ Download QR to my phone</button><p class="hint" id="dlNote"></p>
+<div class="howto" id="pHow"></div>
+<div class="warn">⚠️ Send exactly this amount. Write the Order Code in the Remark / Note. Orders with a wrong amount or fake reference will be rejected.</div>
+<form id="refForm"><div class="field"><label for="txnRef">Transaction / Reference No. *</label><input id="txnRef" required minlength="6" maxlength="40" placeholder="ID received after payment" autocomplete="off"></div><button class="btn" id="refBtn" type="submit">Submit for Verification</button></form>
+<div class="message" id="refMsg"></div><button class="pill" type="button" id="newOrder" style="margin-top:14px">New order</button></div>
+</div></section>
+
+<section id="history"><div class="container"><h2 class="title">My Orders</h2><p class="sub">Saved on this phone. Status: Awaiting Payment → Payment Review → Paid → Processing → Completed</p><div style="margin-bottom:12px"><button class="pill" id="refreshHistory" type="button">Refresh status</button> <button class="pill" id="clearHistory" type="button">Clear local history</button></div><div class="orders" id="historyList"></div></div></section>
+
+<section id="how"><div class="container"><h2 class="title">How it works</h2><div class="how">
+<div class="card"><div class="n">1</div><h3>Pick a package</h3><p>Choose your game and the diamonds or UC you need.</p></div>
+<div class="card"><div class="n">2</div><h3>Enter your ID</h3><p>Type your player UID. Never share your password or OTP.</p></div>
+<div class="card"><div class="n">3</div><h3>Pay</h3><p>Pay with eSewa, Fonepay, Khalti or bank transfer and submit the reference.</p></div>
+<div class="card"><div class="n">4</div><h3>Get top-up</h3><p>We verify your payment, then top up your account.</p></div></div></div></section>
+
+<section id="why"><div class="container"><h2 class="title">Why NEXORA</h2><div class="feats">
+<div class="card"><h3>⚡ Fast</h3><p>Orders are processed as soon as your payment is verified.</p></div>
+<div class="card"><h3>🔒 Secure</h3><p>We never ask for your game password or OTP. Prices are set on our server.</p></div>
+<div class="card"><h3>🇳🇵 Local payments</h3><p>eSewa, Fonepay QR, Khalti and bank transfer are supported.</p></div></div></div></section>
+
+<section id="faq"><div class="container"><h2 class="title">FAQ</h2>
+<details><summary>How long does top-up take?</summary><p>After you submit your payment reference, we check the payment and then top up your account.</p></details>
+<details><summary>What if I enter a wrong Player ID?</summary><p>Check your UID carefully before ordering. A top-up sent to a wrong ID cannot be recovered.</p></details>
+<details><summary>Can I reuse a transaction ID?</summary><p>No. Each transaction ID can be used for one order only.</p></details></div></section>
+
+<section id="wallet"><div class="container"><h2 class="title">Wallet</h2><div class="feature-panel"><div style="font-size:30px">👛</div><h3>Wallet coming soon</h3><p class="hint">No balance is connected yet. Pay only through the payment methods shown at checkout.</p></div></div></section>
+<section id="notifications"><div class="container"><h2 class="title">Notifications</h2><div class="feature-panel"><h3>Order updates</h3><p class="hint">Use “Refresh status” in My Orders to see if your payment was approved.</p><a class="pill" href="#history">Go to Orders ↗</a></div></div></section>
+<section id="profile"><div class="container"><h2 class="title">Profile</h2><div class="feature-panel"><div style="font-size:30px">👤</div><h3>You are browsing as a guest</h3><p class="hint">Your order history is stored in this browser only.</p><a class="pill" href="#history">View my orders ↗</a></div></div></section>
+<section id="support"><div class="container"><div class="support"><div><div style="font-size:38px">💬</div><h2>Need help?</h2><p id="waText">WhatsApp support will be available after a support number is configured.</p></div><a class="pill" id="waPill" href="#support">Support number not configured</a></div></div></section>
+</main><footer><div class="container"><strong style="color:white">NEXORA.</strong><br>Independent project. Not affiliated with game publishers.<br>Top-up is done only after the admin verifies your payment.</div></footer>
+<a class="wa" id="waBtn" href="#support" aria-label="Support">💬</a>
+<nav class="bottom-nav" aria-label="Main navigation">
+<a class="active" href="#home"><span class="nav-icon">⌂</span><span>Home</span></a>
+<a href="#history"><span class="nav-icon">🛒</span><span>Orders</span></a>
+<a class="mid" href="#wallet"><span class="nav-icon">👛</span><span>Wallet</span></a>
+<a href="#notifications"><span class="nav-icon">🔔</span><span>Alerts</span></a>
+<a href="#profile"><span class="nav-icon">👤</span><span>Profile</span></a>
+</nav>
+<script>
+"use strict";
+const SUPABASE_URL="https://xyqrfgdcvidncqrqhwcj.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_fTh3csBbM_IhGV-nangTEA_yZtyaoFL";
+
+/* ===== Fill in your payment details here ===== */
+const PAY={
+  esewa:{name:"eSewa / Fonepay QR",icon:"\uD83D\uDCF1",sub:"Scan with any bank app or eSewa",qr:"esewa",rows:[["Merchant ID","2222020005985342"]]},
+  khalti:{name:"Khalti",icon:"\uD83D\uDC9C",sub:"Pay with Khalti",qr:"khalti",rows:[["Khalti ID","9713593945"]]},
+  bank_mbl:{group:"bank",name:"Machhapuchchhre Bank",icon:"\uD83C\uDFE6",sub:"Scan this bank's QR",qr:"mbl",rows:[["Bank","Machhapuchchhre Bank"]]},
+  bank_nabil:{group:"bank",name:"Nabil Bank",icon:"\uD83C\uDFE6",sub:"Scan this bank's QR",qr:"nabil",rows:[["Bank","Nabil Bank"]]},
+  bank_sanima:{group:"bank",name:"Sanima Bank",icon:"\uD83C\uDFE6",sub:"Scan this bank's QR",qr:"sanima",rows:[["Bank","Sanima Bank"]]}
+};
+/* QR images are stored near the end of this file (const Q). */
+
+const $=id=>document.getElementById(id);
+/* Some in-app previews (like Acode) cannot clone Headers objects. Convert them to plain objects. */
+function safeFetch(input,init){
+  const o=Object.assign({},init||{});
+  if(typeof Headers!=="undefined"&&o.headers instanceof Headers){
+    const h={};o.headers.forEach((v,k)=>{h[k]=v});o.headers=h;
+  }
+  return fetch(input,o);
+}
+const db=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{global:{fetch:safeFetch}}):null;
+let selectedGame="freefire",catalog=[],selectedPackage=null,method=null,loaded=false,busy=false,current=null;
+const HKEY="nexora_orders_v2";
+
+function msg(id,text,type=""){const b=$(id);b.textContent=text;b.className="message show "+type}
+const money=v=>"NPR "+Number(v||0).toLocaleString("en-NP");
+const gameName=()=>selectedGame==="freefire"?"Free Fire":"PUBG / BGMI";
+function getH(){try{const d=JSON.parse(localStorage.getItem(HKEY)||"[]");return Array.isArray(d)?d:[]}catch{return[]}}
+function saveH(x){try{localStorage.setItem(HKEY,JSON.stringify(x.slice(0,50)))}catch{}}
+const pName=i=>i.name||i.package_name||i.title||"Package";
+const pPrice=i=>Number(i.price??i.amount??0);
+const pGame=i=>String(i.game||i.game_name||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+
+function selectGame(g){
+  if(busy||current)return;
+  selectedGame=g;selectedPackage=null;
+  $("game-freefire").classList.toggle("active",g==="freefire");
+  $("game-pubg").classList.toggle("active",g==="pubg");
+  $("selName").textContent=g==="pubg"?"PUBG / BGMI":"Free Fire";
+  $("selIcon").textContent=g==="pubg"?"\uD83C\uDFAF":"\uD83D\uDD25";
+  $("selIcon").className="gicon "+(g==="pubg"?"gi-pubg":"gi-ff");
+  renderPackages();
+}
+
+/* Package categories (detected from the package name) */
+const CATS={diamonds:{label:"Diamonds",icon:"\uD83D\uDC8E"},weekly:{label:"Weekly",icon:"\uD83D\uDCC5"},monthly:{label:"Monthly",icon:"\uD83D\uDDD3\uFE0F"},levelup:{label:"Level Up Pass",icon:"\uD83C\uDFAB"}};
+let cat="diamonds";
+function catOf(i){
+  const n=pName(i).toLowerCase();
+  if(/level\s*up/.test(n))return "levelup";
+  if(/weekly/.test(n))return "weekly";
+  if(/monthly/.test(n))return "monthly";
+  return "diamonds";
+}
+function renderCatTabs(cats){
+  const box=$("catTabs");box.replaceChildren();
+  box.style.display=cats.length>1?"flex":"none";
+  cats.forEach(c=>{
+    const b=document.createElement("button");b.type="button";b.className="tab"+(c===cat?" on":"");
+    b.textContent=CATS[c].label;
+    b.addEventListener("click",()=>{if(busy||current)return;cat=c;selectedPackage=null;renderPackages()});
+    box.appendChild(b);
+  });
+}
+
+function renderPackages(){
+  const grid=$("packageGrid");grid.replaceChildren();
+  const gameItems=catalog.filter(i=>{const g=pGame(i);if(!g)return true;return selectedGame==="freefire"?(g.includes("freefire")||g==="ff"):(g.includes("pubg")||g.includes("bgmi"))});
+  const cats=["diamonds","weekly","monthly","levelup"].filter(c=>gameItems.some(i=>catOf(i)===c));
+  if(!cats.includes(cat))cat=cats[0]||"diamonds";
+  renderCatTabs(cats);
+  const items=gameItems.filter(i=>catOf(i)===cat);
+  $("catNote").textContent=(cat==="diamonds"||!items.length)?"":"This pass is sent as one pack per order. To buy more, place another order after this one.";
+  if(!items.length){msg("catalogMessage","No packages found for this game.");selectedPackage=null;renderSummary();return}
+  if(!selectedPackage||!items.some(x=>String(x.id)===String(selectedPackage.id)))selectedPackage=items[0];
+  items.forEach(it=>{
+    const b=document.createElement("button");b.type="button";b.className="package";
+    if(String(selectedPackage.id)===String(it.id))b.classList.add("active");
+    const t=document.createElement("strong");t.textContent=pName(it);
+    const p=document.createElement("span");p.textContent=money(pPrice(it));
+    const d=document.createElement("small");d.textContent=selectedGame==="freefire"?CATS[cat].label:"UC";
+    const ic=document.createElement("div");ic.className="pic";ic.textContent=selectedGame==="freefire"?CATS[cat].icon:"\uD83C\uDFAF";
+    b.append(ic,t,p,d);
+    b.addEventListener("click",()=>{if(busy||current)return;selectedPackage=it;renderPackages()});
+    grid.appendChild(b);
+  });
+  msg("catalogMessage","Choose a package.","ok");
+  renderSummary();
+}
+
+async function loadProducts(tries=0){
+  if(!db){msg("catalogMessage","Supabase failed to load. Check your internet.","error");return}
+  try{
+    const{data,error}=await db.from("products").select("*").eq("active",true).order("price",{ascending:true});
+    if(error)throw error;
+    catalog=data||[];loaded=true;
+    if(!catalog.length){msg("catalogMessage","No active products found.","error");renderSummary();return}
+    renderPackages();
+  }catch(e){
+    if(tries<2){msg("catalogMessage","Connection problem. Retrying...");setTimeout(()=>loadProducts(tries+1),2500);return}
+    const hint=/fetch|network/i.test(String(e.message))?" Check your internet. If it keeps happening, your Supabase project may be paused (open the Supabase dashboard and restore it).":"";
+    msg("catalogMessage","Could not load products: "+e.message+"."+hint,"error");
+  }
+}
+
+let bankOpen=false;
+function renderMethods(){
+  const box=$("methodList");box.replaceChildren();
+  const inBank=bankOpen||(method&&PAY[method]&&PAY[method].group==="bank");
+  const mk=(icon,name,sub,active,fn,indent)=>{
+    const b=document.createElement("button");b.type="button";b.className="method"+(active?" active":"");
+    if(indent)b.style.marginLeft="18px";
+    const ic=document.createElement("span");ic.className="ic";ic.textContent=icon;
+    const tx=document.createElement("div");tx.textContent=name;
+    const sm=document.createElement("small");sm.textContent=sub;tx.appendChild(sm);
+    b.append(ic,tx);
+    b.addEventListener("click",()=>{if(busy||current)return;fn();renderMethods();renderSummary()});
+    box.appendChild(b);
+  };
+  ["esewa","khalti"].forEach(k=>mk(PAY[k].icon,PAY[k].name,PAY[k].sub,method===k,()=>{method=k;bankOpen=false}));
+  mk("\uD83C\uDFE6","Bank Transfer","Choose your bank, then scan its QR",inBank,()=>{bankOpen=true;if(method&&PAY[method].group!=="bank")method=null});
+  if(inBank)Object.keys(PAY).filter(k=>PAY[k].group==="bank").forEach(k=>mk("\uD83C\uDFDB\uFE0F",PAY[k].name,PAY[k].sub,method===k,()=>{method=k},true));
+}
+
+function renderSummary(){
+  $("sGame").textContent=gameName();
+  $("sPackage").textContent=selectedPackage?pName(selectedPackage):"—";
+  $("sUid").textContent=$("playerUid").value.trim()||"Not entered";
+  $("sMethod").textContent=method?PAY[method].name:"Choose payment";
+  $("sPrice").textContent=selectedPackage?money(pPrice(selectedPackage)):"—";
+  const b=$("submitBtn");
+  b.disabled=!loaded||!selectedPackage||!$("playerUid").value.trim()||!method||busy||!!current;
+  b.textContent=busy?"Creating order...":current?"Order created — pay below":!loaded?"Loading...":!method?"Choose a payment method":"Create Order — "+money(pPrice(selectedPackage));
+}
+
+/* Step A: create order (price is set by the server) */
+$("orderForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(busy||current||!selectedPackage||!method)return;
+  const uid=$("playerUid").value.trim();
+  busy=true;renderSummary();msg("message","Creating order...");
+  try{
+    const{data,error}=await db.rpc("create_payment_order",{p_product_id:String(selectedPackage.id),p_uid:uid,p_server:$("server").value.trim(),p_method:method});
+    if(error)throw error;
+    current={code:data.code,price:Number(data.price),method,game:data.game||gameName(),package:data.package||pName(selectedPackage),uid,status:"Awaiting Payment",createdAt:new Date().toISOString()};
+    const h=getH();h.unshift(current);saveH(h);
+    msg("message","Order created. Please pay below.","ok");
+    showPay();renderHistory();
+  }catch(err){msg("message","Order failed: "+(err.message||"Unknown error"),"error")}
+  finally{busy=false;renderSummary()}
+});
+
+const HOW={
+  esewa:["Tap “Download QR to my phone” above.","Open eSewa or any bank / wallet app and choose Scan QR.","In the scanner, tap the gallery / image icon and pick the saved QR.","Enter the exact amount and write the Order Code in the remark.","Copy the transaction ID shown after payment and submit it below."],
+  khalti:["Easiest: open Khalti, choose Send Money and use the Khalti ID above (tap Copy).","Or tap “Download QR to my phone”, open Khalti, choose Scan QR and pick the saved QR from your gallery.","Enter the exact amount and write the Order Code in the remark.","Copy the transaction ID shown after payment and submit it below."],
+  bank:["Tap “Download QR to my phone” above.","Open your bank's mobile app (or any wallet app) and choose Scan QR.","In the scanner, tap the gallery / image icon and pick the saved QR.","Enter the exact amount and write the Order Code in the remark.","Copy the transaction / reference ID and submit it below."]
+};
+function addCopy(el,text){
+  const b=document.createElement("button");b.type="button";b.className="cp";b.textContent="Copy";
+  b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(text);b.textContent="Copied"}catch{b.textContent="Select & copy"}setTimeout(()=>{b.textContent="Copy"},1800)});
+  el.appendChild(b);
+}
+function downloadQR(){
+  if(!current||!PAY[current.method].qr)return;
+  const img=new Image();
+  img.onload=()=>{
+    const sc=Math.max(1,Math.round(900/img.width)),pad=60;
+    const c=document.createElement("canvas");c.width=img.width*sc+pad*2;c.height=img.height*sc+pad*2;
+    const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);
+    x.imageSmoothingEnabled=false;x.drawImage(img,pad,pad,img.width*sc,img.height*sc);
+    c.toBlob(b=>{
+      if(!b){$("dlNote").textContent="Could not create the file. Press and hold the QR image and choose Save image.";return}
+      const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="NEXORA-"+current.method+"-QR.png";
+      document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+      $("dlNote").textContent="QR saved to your phone (check Downloads / Gallery). If nothing downloaded, press and hold the QR image and choose Save image.";
+    },"image/png");
+  };
+  img.src=Q[PAY[current.method].qr];
+}
+$("pDl").addEventListener("click",downloadQR);
+
+function showPay(){
+  const m=PAY[current.method];
+  $("pCode").textContent=current.code;$("pAmount").textContent=money(current.price);addCopy($("pCode"),current.code);addCopy($("pAmount"),String(current.price));
+  const d=$("pDetails");d.replaceChildren();
+  m.rows.forEach(([k,v])=>{const l=document.createElement("div");l.className="line";const s=document.createElement("span");s.textContent=k;const st=document.createElement("strong");st.textContent=v;addCopy(st,v);l.append(s,st);d.appendChild(l)});
+  const q=$("pQr");if(m.qr){q.src=Q[m.qr];q.style.display="block"}else q.style.display="none";
+  $("pDl").style.display=m.qr?"block":"none";$("dlNote").textContent="";
+  const how=$("pHow");how.replaceChildren();
+  const ht=document.createElement("b");ht.textContent="Paying from this same phone?";
+  const hl=document.createElement("ol");(HOW[m.group||current.method]||[]).forEach(x=>{const li=document.createElement("li");li.textContent=x;hl.appendChild(li)});
+  how.append(ht,hl);
+  $("payBox").classList.add("show");$("txnRef").value="";$("refMsg").className="message";
+  $("refBtn").disabled=false;
+  $("payBox").scrollIntoView({behavior:"smooth"});
+}
+
+/* Step B: submit reference */
+$("refForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!current)return;
+  const ref=$("txnRef").value.trim();
+  if(ref.length<6){msg("refMsg","Enter a valid reference number.","error");return}
+  $("refBtn").disabled=true;msg("refMsg","Submitting...");
+  try{
+    const{error}=await db.rpc("submit_payment_ref",{p_code:current.code,p_ref:ref});
+    if(error)throw error;
+    const h=getH(),o=h.find(x=>x.code===current.code);if(o){o.status="Payment Review";saveH(h)}
+    msg("refMsg","Reference submitted. The admin will verify your payment. Top-up happens only after it is marked Paid.","ok");
+    renderHistory();
+  }catch(err){msg("refMsg",err.message||"Error","error");$("refBtn").disabled=false}
+});
+
+$("newOrder").addEventListener("click",()=>{
+  current=null;$("payBox").classList.remove("show");msg("message","");$("message").className="message";
+  renderSummary();$("checkout").scrollIntoView({behavior:"smooth"});
+});
+
+function renderHistory(){
+  const list=$("historyList");list.replaceChildren();
+  const h=getH();
+  if(!h.length){const e=document.createElement("div");e.className="empty";e.textContent="No orders yet.";list.appendChild(e);return}
+  h.forEach(o=>{
+    const row=document.createElement("div");row.className="order-row";
+    const l=document.createElement("div");
+    const t=document.createElement("strong");t.textContent=o.game+" — "+o.package;
+    const a=document.createElement("small");a.textContent=o.code+" · "+money(o.price);
+    const b=document.createElement("small");b.textContent="UID: "+o.uid;
+    l.append(t,a,b);
+    const r=document.createElement("div");
+    const s=document.createElement("span");s.className="status";s.textContent=o.status;
+    r.appendChild(s);
+    if(o.status==="Awaiting Payment"){
+      const p=document.createElement("button");p.type="button";p.className="pill";p.textContent="Pay / Reference";
+      p.addEventListener("click",()=>{if(!PAY[o.method]){alert("This order used an old payment option. Please create a new order.");return}current=o;method=o.method;renderMethods();renderSummary();showPay()});
+      r.appendChild(p);
+    }
+    row.append(l,r);list.appendChild(row);
+  });
+}
+
+async function refreshAll(){
+  const h=getH();
+  for(const o of h){
+    try{
+      const{data,error}=await db.rpc("get_payment_order_status",{p_code:o.code});
+      if(!error&&data&&data.status)o.status=data.status;
+    }catch{}
+  }
+  saveH(h);renderHistory();
+}
+$("refreshHistory").addEventListener("click",refreshAll);
+$("clearHistory").addEventListener("click",()=>{if(!confirm("This clears history on this phone only. Orders in the database are not deleted."))return;localStorage.removeItem(HKEY);renderHistory()});
+$("playerUid").addEventListener("input",renderSummary);
+
+document.querySelectorAll(".bottom-nav a").forEach(a=>a.addEventListener("click",()=>{document.querySelectorAll(".bottom-nav a").forEach(x=>x.classList.remove("active"));a.classList.add("active")}));
+
+/* QR images (embedded). Do not edit these lines. */
+const Q={
+esewa:`
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAigAAAIoAQAAAABrdi0oAAAFI0lEQV
+R42u1dwY4jWQizV/P/v+w9gHlU71xWWo20wh21kqq8cCAIDBhC4T/4+wuREimREimREimREil/Sg
+okGcIIkCBA9VC9qboQ6o1+F1oCot0rUn7ZUgACIkQIYFkDBQIQAUoUfOTzqWj3mr2A9e1TZJsCQZ
+W1UIAIQlQZUt2fT0W7R6U45JQ7EUFAvgSoMh3yRaNo96R/GYMRZV9TMIX1ko5KrCNUtHvYXgxXWI
+C3nwq8YGGYMRi9T0W7Z/Ojf/dIfnTUv6zYwvXMutI/Q1b9R7un86OOMTTm7YBEZ9Z9hDamzpMU7V
+6TQldWUGW6tg/yeRuxLYWvmgd2GS/avZcfLY+CgrWus7iIJ5atVAbFNhjGv1yS4ryYnQdVyOnXnQ
+2tyMNnLuDYWLR7zL/0Vy9W+WU5HMH5s+BSr7hcUPzLQXtppKvXN2ov0o6Eg4k77a52Ep0jRbvH4p
+HdSscdjjfZeBcb0jgmJT+6GI8Gk2gsww1pDo2BAvnNteNfLvoXfrxHoZjGMo1VBtC0TyGQet3teN
+TpsftF8zx/GjZMf6Zz7Wj3mpQqxJEVdew76lrteNQ9a9doCEj2S9HuLSk0/7LchZpQZ+vBO+TAVH
+HMRJho95QUE+jaWkgWTYpN6YVRcFPtTIUR2sNEu7fikQawkPimQNgMmDKlV67xiWj3Vj7dPF2z/p
+09i8TUYhZFijCzl+Hv3oxHkNo6QA5ZQaZo6utPhved+svJfLpZltNpLOD75ehO8/EVd2XvE+2ei0
+fTcXaPkT8tC91r9ICS8XG0e86/4NOW1rOgn2dfY8n8hvSnb9Zf0POvGN4uAHBx7N5tD0COTUW71/
+zL3JgEaKZh17DJNA26HmPDiXaP4d0vr+7TTXzDjJ0bdYtJi/AQ7Z7Cu5TJCWblvi4SPMzYI7GYhu
+Ojv0S7x/Kj15jmFP/VkyNqg/GcLPb6j2j3or10mgy8EaNXfaEWO0bD9aVXNAS/XIxHD8CMrbyJEq
+MXvq6jk+n0G2/iXfuWebUHTTwPoFWIcZU3+dHZ/OiRuH/XDvhxuxOkxKODUqgHWNQO5Tf9ANsSQU
+LimxqIdk/5l9lcB68DqmGA6SdOVeblR9yVvWj3Vjxy8XYwygs6tp0hODhwdb0m+OWkvWDX+jFDJH
+qAl9Nf5PAdmP7RMSneL1Ujab2GrBbvDr17ntZaKc1l9ksd9C/AzpffXoYBNGseSV5jl/wo9Zdh2r
+3gBM864t3WqgZHu1f9y1jM6gd4NHYqdHj7p4JfjtZfaJKUPsON8JBa7/OQuv3IaTilH3BUSm+kk4
+cDPGPCKc94AEmUhO4dxb/cktL7VGcZAz18RI7JYMOVt2FqLc6Mdk/ZC7jWdtDEFq+q6+vqRnvCus
+0sfKmbeJe7Pjdp9JBdxv+8kTVsWBzt3sK7ZSCazUAddgbPPpYD2bscCsXEv1z1L3go135luA3Qq7
+r45uyZin85Zy9vG/w3Qu0Ue4/d8+dGxGj3mr14OTO+1bk9X88FbiYJTz/gZDzCJyqtzfDTlaYRjN
+ZMbObVTubTznjKHExgML9h2C+zG+ZHVIp2r9VfhkOH3lmnaQis6cYFYRroiqnv3pICLdIL9oKp5s
+O0yfSpLwnG74T/ctReZnHq7Dl8B2accf0UX5OsYi9npbAGA1hRqdAuC+Oql354nkDhv1zFL/Yc/C
+4lG4figoy+xCr/xEC0e0wKey9QW4QH7N/GsQbE8/PTdUDeIRTtnqy/RC+REimREimREimR8j+Q8j
+fPmcisC6naCAAAAABJRU5ErkJggg==
+`,
+khalti:`
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADaAQMAAAD3zb7fAAAABlBMVE
+X///8aGhoJPPZ5AAACCUlEQVR42u2XQYrcMBRE37cMasjCvoF9gxzBk9wqMGm7J32PXMU+Rnb2De
+RFoA2yK4vuDDPDJGQTrEVr9eEjKEpV/6vo+OMpM/5y7s178783JUm90wZHKoVGkkKqaFczK1kso8
+qYADPL0yW+UIS82vx4pDqDk5KXydQtNUxfynR1mz9XmkuA6py6BWfLIae98MTUBlazXQE5SYHl42
+ewS3UGSfHtzT6Vx7ZbvRY/vjM9zoOl/NiPRR+L3ilb6ifIwQWeue1SQ+umNp/bOG9ebTGuZbNUck
+kuADqIRe/UU21ep9uiahRS/EnRgSRoIkc/4sdYKIJLFq0LjdRHTDpdqkiT1i81e11Ghnxuc2Bai8
+HUx6KPJK5b8KNJkeY6gPfhlg4eCzlt0EgnKXq9BHSG1T7Bw1LrMHEY9lxXdNCGhqJ3Ol240Rfwv9
+G+N1J3VYJVPXO72ObVHianfi2bNKWZAXF+iMWJyqw+gtmDAnmyRnIBBSKm8frDVkh0pGbAUolCIG
+tOGhWg6NcyVW5fWAc/XolNiNvuveTqtfnRLpxpIGGXXZPram6udQAGGFJy2QEgD6+S61UJSxO9Iv
+ysd0f7Qe2BVuOZYa3eRumYWpRe6qNXxvS1bFzAj3+7uetMuIXTb3PNUrdhyGdbyn+x4H7JVePRjz
+qQz22yeeVlcr3l15IcI9khdW/em/ALxocVj2Zmr04AAAAASUVORK5CYII=
+`,
+mbl:`
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeoAAAHqAQAAAADjFjCXAAAFKUlEQV
+R42u1dW47bOBCstgRIf/IiB5BuwskJ9kh2jpQbSEfIDWYOsID8McAaoKb2gw/JL9mTyde69OGMSB
+UotBrdrGKTMeIL17DBly7BBRdccMEFF1xwwf8s3OJVwl4w2Xxh2E4GHEoAmAw4pJ4XmU7wL8IdSX
+IE+MMqAhVJjkbgUCJ6GAraCwqSJNdHrx98NVn+OeFl/PewBdxPwBwnIzCVQHM0OAIYWh+eIg6AAY
+WX6QT/utfNYogVNPfzG619RQhpBhiAZvzU6J0sL/ij8Db5Fn9sEaZ5qW1Ks7kVePcp/5PlnzvWNQ
+RwAAj43DmVGKwghq19AJiw24dHPjt6fGwvywseQtqCG6Ag3Hjy045nbelRR5L9vdE7WV7wW7FuDl
+8EfPwZWh/oA9DkW1CmE/wP6nVRJTnMyh2AoT0ae0wWucYWWPTKdIL/foaN2lzjQY5Gkh5o6ZHait
+BGjogdZxl2c/FC3QNZVx/uqb2uT/Q1SMUcCwINk6+RZN9wkV13vJjXdZ8YdS/Ly+vYVx674FcNyR
+4Fg17iRoA9CsaAl2IdT72uviSoinWC3+OwjcfS19ICGQAjUOVcSyY2e53Ddtfer5blBb+EhwyL6m
+jsm6jX2UtIpEdD+1aG/GsviPLxtdHrG4m0uxn6ZPmnn9eFHNoD2AXXy/EPDQlHj124rfyqXre/M5
+urZXlIrwPMETA0RyOq9xLuraK1v9LCRfs6lbFAgPdGry9zbSfLC37F64DDFsShorkRRPA/EAYAHK
+ygoSEw/P1PScxasSwv+BeVk0Bfm5w+k1QSel0W7fominz3V8RkecFXYl31L6z9VXq4t4oYLIWz9t
+dfH4bqvdx93xYADt9oQHleX1fjVrnJ5rquIssr1qUwRyaBLnU4eoQSAOSAF0Lf47FO8zrBr3pdy8
+hXU161WNBO+rQOAQQOyx52ptd1a2+1v/hrI8srwyJkTjhOBjQAUL1bIgwFI30dt6Ej/qyNflMWrq
+WcCI559T/zhTHyCrhUeBcqAnoYYzhMW3YeZhObG2+qDyc4Gg8MW0uUFpOhpYdZ6wHHoyGUsVfHlV
+i3uTulU6xTrMukYZcDXvC/2JZugaicxOfOY901lnqvTR/uuTlsjnVz3XpeEWPfeOx6zEnY1jNsd8
+f/xCbkdYHDcjlp65vMa6usCOdiKHcR67qbrlcv8+pelhd85rAMK2KBm04G92ZBJQ5bYV0/lXDjBO
+Bg4NDGpbK7NSeyvOBrHDYQ2VhQsguktfF5e2zaI4YqF9ndyLAhpN0qY69lecGXep2PpOFQ0YAC8U
+ydhrAo3x3jOTupBODh0VXVKfhVDps2u7KvPOLpOoFmzBt1inzszopeV6+6mWKd4MsM6xHLiBtykV
+fzDp5wzbfuIQ7brZNbfbin9roe2c3CVpw4pUtVTR67vmIuAbAH9k10Z8pJLeVE8GtsIi+B9WGjmH
+HW8CK5yOLeAzUnm5UgKMvL69LNad3mybJEVOlmmvv7VZ219sMKniPXPH1zI2DWpu1hYWdiDn1zuR
+0eO13n9OjOTpZXrIscFrlkc95sndJsnuHNMfF+hu3y+3WyvOAn1/lZnUGbG17sA8N2RKyla3wZD+
+ys3ku0r9PtmpOzI4nry17FOnndeUP7Cgafcm8GoClow3bMYW7C7rvdHr27O+JelleGXaxvBfowyy
+fjPJHDksg63mETHW5N5M5cTx9OHHaWhfuZzcbEG/ftOJ6e8/RgrNvI8oIv53H63+sEF1xwwQUXXH
+DB/xfw/wD84+3fkMvphwAAAABJRU5ErkJggg==
+`,
+nabil:`
+data:image/png;base64,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
+`,
+sanima:`
+data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeoAAAHqAQAAAADjFjCXAAAEv0lEQV
+R42u1dUY6jSgwsD5HIH5H2AHAT5u8dC+ZI7wZwhHeEuQH8vZXIej/c7u5kAiSb+dpUS4uWGUogY9
+muspsRxRNrfMNTi3DCCSeccMIJJ5zw74VLWAcA8wHALOK/OADjCRA5AfI++6XvNB3hf7xUVRWtqq
+pOhepQLQAginYqNKypuDhExPD23FPxxb02fI7hC0A3lAuA6qdgPJ1F3nEWO03xb+PuPY60POEb63
+B1LqgAaSdAgUKlnaAynuSXoJpU2n+/NabxxRGOFOtwFoxyAEYRQa0LUH+GWm8X3l+dN/FAyxOex7
+pKAcyAwv4VKgCg4z//h/oPs/yKl9x99+PmtXxxL80mwiqMQ9ihni5Ow8Ev3WYTa8GNlic8xroUvh
+QIpEExnz2lVoud6mWko+UJfyrWVao6+KmqhTQxqQRwNSW7WPdi3ZdHY4Yl/MLrXIJbYHpdO4k5Id
+oJUNUFRilQLUAdhbwH9LrmVurli3tp+Hhy0hpS6k8ByhDXMJ6A7kNK1QGF6ke93HP34xavpeUZ64
+BqQZf9bwIsuRqHsMgWIqEONzNsv+NhtDzhVxl2qFSzbAqI+Z8n3Ng5m0xmYUeM8OdjXei5LrAcOs
+CVE6AI5CLzyX2vo3JC+K5ygvEEUcw/VFoNeomOpwKo//sRa71cNNH77t7Q8oSvwusJEKkX6DAf0O
+l0Fs+mMeECwCgHdPp53f2/dK5+8yF7Wp4ZNtV1llzVK7dcuau8fdFqqv929TpanvBtDotAVQEAXS
+QXaCegGxBKus4qvJ35un7ttKflCc9iXd6RAEwvVl3QRQ4bDrrsex3u1lD44l6cw0aCWi4W6zKpJP
+iaxzpUy3r3/7jha4x1hF/XdZZNVRcXiE1IEe/DRk+so3L8xev6O56voeXpdXFnRNLhrCNhbjYV1p
+Hthghp9/uwd+ZavjjGOsBl4aFagNpphob4J+qHezhsc/NJ32h5wqP7ADZVkm8ZS7nWBzqtD6t6s6
+5raHnCH4Z3w+wbJTCLhA2wphKfRQcA0n2WLq5cw/tHbtvT8ox1QJmCG8L0SZ34qoe5Vb3uxlRTQw
+5L+H5dl7ZY+xyAeK0X55uyHsbDs8S0POFXsa4KihxCl8LF4Np3/IefTUA26T6w+0/4M8oJXAIuwy
+x7NxilBdJU3YWkfHuq8/hImccX99KxzjZK+ECxzdeZaFeq6SXOcGOD7NLr3lZ87ei/bWh5wm9lWF
+tVIBdhZ44u+cU287k71XlkhiV83+tqXdANZdqemLaCLZHSSlbhXWbYBl+/qdNcU1ruTCT8KsOmkF
+b6jDqycTunGanM2+j+0/KE38cmNLX2YUTCG1+eZsNBdXPfRIOtr+s0tDzhWV1ny0cAQg0n3qCNuk
+qbdvBQryP86QzrgydGH0rNdoalCi+MG5fr83XNjTTbrCZhvrgXV04QJpgGwCeIE7mNPX8Alms7vX
+uCfSMJ88URHpaodFOh+nE6i+pnaVFP3udDRnPlfQ2+8UBfPh1LyxMeOax+2NeIC/vEie1HHACE7x
+fPZZiNwt0ctqflCV+v6+KnEzX72Ek2eJdatdyZSPi3cdjSpTrjsJe8NrZqVznscf/RyCZeHS7863
+WEE0444YQTTjjhfwX8Nyb5lf21F0EDAAAAAElFTkSuQmCC
+`
+};
+for(const k in Q)Q[k]=Q[k].replace(/\s+/g,"");
+
+async function loadSettings(){
+  try{
+    const{data,error}=await db.rpc("get_public_settings");
+    const n=!error&&data?String(data.whatsapp||"").replace(/\D/g,""):"";
+    if(!n)return;
+    const u="https://wa.me/"+n;
+    const w=$("waBtn");w.href=u;w.target="_blank";w.rel="noopener";
+    const p=$("waPill");p.href=u;p.target="_blank";p.rel="noopener";p.textContent="Chat on WhatsApp";
+    $("waText").textContent="Message us on WhatsApp for any help with your order.";
+  }catch{}
+}
+renderMethods();renderHistory();renderSummary();loadProducts();loadSettings();window.__nx=1;
+</script>
+<script>if(!window.__nx){var d=document.createElement("div");d.style.cssText="position:fixed;top:0;left:0;right:0;z-index:99;background:#b00020;color:#fff;padding:10px;font:14px sans-serif";d.textContent="Page script did not run: the file may be incomplete or has an error.";document.body.appendChild(d)}</script>
+</body>
+</html>
