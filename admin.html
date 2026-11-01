@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#060d1f"><meta name="robots" content="noindex,nofollow">
+<title>NEXORA Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#060d1f;--line:#1d3a70;--text:#f2f6ff;--muted:#8fa3cc;--blue:#2b8cff;--cyan:#22c3ff;--green:#2ee59d;--danger:#ff9a9a;--grad:linear-gradient(100deg,#2b8cff,#22c3ff)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse 90% 35% at 50% 0,#0f2c63 0,transparent 70%),var(--bg);color:var(--text);font-family:Outfit,system-ui,Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}
+.login-card{width:100%;max-width:410px;background:linear-gradient(150deg,#0e1c44,#091330);border:1px solid var(--line);padding:28px;border-radius:28px;box-shadow:0 20px 60px #000a}
+.mark{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#0c1a3d,#050a18);border:1px solid #2a4f96;display:grid;place-items:center;font-weight:800;font-size:20px;color:var(--cyan);box-shadow:0 0 24px #2b8cff55;margin-bottom:14px}
+.brand{font-size:26px;font-weight:800;letter-spacing:3px}.brand span{color:var(--cyan)}
+.muted{color:var(--muted);font-size:13px}p{line-height:1.6}
+label{display:block;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;font-size:11px;font-weight:600;margin-top:10px}
+input,textarea,select{width:100%;padding:14px 15px;background:#040a1a;color:#fff;border:1px solid var(--line);border-radius:14px;margin:6px 0 10px}
+input:focus,textarea:focus,select:focus{outline:2px solid #22c3ffaa;border-color:transparent}
+.btn{background:var(--grad);color:#fff;border:0;border-radius:14px;padding:11px 16px;font-weight:700;box-shadow:0 8px 24px #2b8cff44;transition:.15s}.btn:active{transform:scale(.97)}
+.btn-secondary{background:#0a1430;color:#cfe0ff;border:1px solid var(--line);box-shadow:none}
+.btn-danger{background:#3a1a2a;color:#ffd9e1;border:1px solid #743549;box-shadow:none}
+.btn-ok{background:linear-gradient(100deg,#12a06b,#2ee59d);color:#04201a;box-shadow:none}
+.btn.sm{padding:7px 12px;font-size:12px;border-radius:10px}
+button:disabled{opacity:.55;cursor:wait}
+.error{color:var(--danger);font-size:13px;overflow-wrap:anywhere}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:230px;flex-shrink:0;background:linear-gradient(180deg,#0a1633,#060d1f);border-right:1px solid #12285a;padding:22px 14px}
+.sidebar .brand{display:flex;align-items:center;gap:10px;font-size:21px;padding:5px 10px 22px}
+.sidebar .brand:before{content:"NX";width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:14px;letter-spacing:0;color:var(--cyan);background:#0c1a3d;border:1px solid #2a4f96}
+.nav-label{color:var(--muted);font-size:10px;letter-spacing:2px;padding:10px 10px 8px}
+.nav{display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:#b4c6ea;background:transparent;border:0;padding:12px 14px;border-radius:16px;margin:3px 0;font-weight:500}
+.nav:hover{background:#0f1d42;color:var(--cyan)}.nav.active{background:var(--grad);color:#fff;font-weight:700;box-shadow:0 8px 24px #2b8cff44}
+.nav b{position:static;background:#ff4d6d;color:#fff;border-radius:99px;font-size:10px;padding:2px 7px;margin-left:auto}
+.main{flex:1;min-width:0;padding:24px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.topbar .r{display:flex;gap:8px}
+h1{font-size:26px;margin:0 0 6px;font-weight:800;background:linear-gradient(90deg,#fff,#9fd0ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font-size:19px;margin:0 0 14px;font-weight:700}h3{font-size:16px;margin:0 0 6px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:linear-gradient(150deg,#0e1c44,#091330);border:1px solid var(--line);border-radius:24px;padding:20px;min-width:0;box-shadow:0 12px 40px #0006}
+.grid>.card{position:relative;overflow:hidden}.grid>.card:before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--grad)}
+.ico{width:40px;height:40px;border-radius:12px;background:#12306b;display:grid;place-items:center;font-size:19px;margin-bottom:10px}
+.metric-label{color:var(--muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+.metric{font-size:26px;font-weight:800;margin:6px 0 2px;color:var(--cyan)}.metric.neg{color:var(--danger)}
+.section{margin-top:18px}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #16316a}
+th{color:var(--muted);font-weight:500;font-size:11px;letter-spacing:1.5px;text-transform:uppercase}
+tbody tr:hover{background:#0f1d4280}
+.status{display:inline-block;padding:5px 11px;border-radius:99px;font-size:11px;font-weight:700}
+.st-pending{background:#3a2e0f;color:#ffd78b}.st-processing{background:#0f2f5c;color:#7fc4ff}.st-completed{background:#0f3d31;color:var(--green)}.st-failed{background:#451c28;color:var(--danger)}
+.empty{padding:20px;color:var(--muted);font-size:13px;text-align:center}
+.notice{padding:13px;border:1px solid #6b5a1d;border-radius:16px;background:#2a2410;font-size:13px;color:#ffd78b;line-height:1.6;margin-bottom:14px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}.form-grid .full{grid-column:1/-1}
+.bar-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}.bar-row>*{margin:0;flex:1;min-width:140px}.bar-row .btn{flex:none}
+.pgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.pcard{background:#0a1430;border:1px solid var(--line);padding:16px;border-radius:20px;min-width:0}
+.pprice{font-size:22px;font-weight:800;color:var(--cyan);margin:6px 0}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chart{display:flex;align-items:flex-end;gap:6px;height:150px}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.bar{width:100%;background:var(--grad);border-radius:6px 6px 0 0}.col span{font-size:10px;color:var(--muted);margin-top:4px}
+@media(max-width:900px){.sidebar{width:190px;padding:15px 8px}.main{padding:16px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){
+ body{padding-bottom:84px}.layout{display:block}
+ .sidebar{position:fixed;bottom:0;left:0;right:0;z-index:40;width:100%;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-top:1px solid #12285a;border-right:0;background:#060d1ff5}
+ .sidebar .brand,.nav-label{display:none}.nav-list{display:flex;overflow-x:auto;gap:2px;scrollbar-width:none}
+ .nav{flex-direction:column;gap:2px;padding:7px 12px;font-size:11px;min-width:72px;margin:0;position:relative}.nav b{position:absolute;top:2px;right:8px;margin:0}
+ .main{padding:14px}.pgrid,.form-grid{grid-template-columns:1fr}.grid{gap:10px}.grid>.card{padding:14px}.form-grid .full{grid-column:auto}.metric{font-size:19px}.ico{width:34px;height:34px;font-size:16px}
+}
+@media print{.sidebar,.topbar .r,.noprint{display:none!important}body{background:#fff;color:#000}.card{box-shadow:none;border:1px solid #999;background:#fff}.metric,h1{color:#000;background:none}th,td{color:#000}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-wrap"><div class="login-card">
+  <div class="mark">NX</div><div class="brand">NEXORA<span>.</span></div>
+  <p class="muted">Secure administration portal</p><h2 style="margin-top:22px">Admin Login</h2>
+  <form id="loginForm"><label for="email">Email address</label><input id="email" type="email" placeholder="Admin email" required autocomplete="username">
+  <label for="password">Password</label><input id="password" type="password" placeholder="Password" required autocomplete="current-password">
+  <button class="btn" style="width:100%;padding:15px;margin-top:6px" id="loginBtn">Sign In</button></form>
+  <p id="loginMessage" class="error"></p>
+</div></div>
+
+<div id="app" class="layout hidden">
+  <aside class="sidebar"><div class="brand">NEXORA<span>.</span></div><div class="nav-label">WORKSPACE</div><div class="nav-list" id="navList"></div></aside>
+  <main class="main">
+    <div class="topbar"><div><h1 id="pageTitle">Dashboard</h1><div class="muted" id="welcome"></div></div>
+      <div class="r"><button class="btn btn-secondary" id="reloadBtn">↻ Refresh</button><button class="btn btn-secondary" id="logoutBtn">Logout ↗</button></div></div>
+    <p id="globalMessage" class="muted" aria-live="polite"></p>
+    <section id="page-dashboard" class="page"></section><section id="page-orders" class="page hidden"></section>
+    <section id="page-payments" class="page hidden"></section><section id="page-products" class="page hidden"></section>
+    <section id="page-customers" class="page hidden"></section><section id="page-purchases" class="page hidden"></section>
+    <section id="page-reports" class="page hidden"></section><section id="page-settings" class="page hidden"></section>
+  </main>
+</div>
+
+<script>
+"use strict";
+const SUPABASE_URL="https://xyqrfgdcvidncqrqhwcj.supabase.co";
+const SUPABASE_KEY="sb_publishable_fTh3csBbM_IhGV-nangTEA_yZtyaoFL";
+function safeFetch(i,init){const o=Object.assign({},init||{});if(typeof Headers!=="undefined"&&o.headers instanceof Headers){const h={};o.headers.forEach((v,k)=>{h[k]=v});o.headers=h}return fetch(i,o)}
+const db=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{global:{fetch:safeFetch}}):null;
+const $=id=>document.getElementById(id);
+const SOLD=["Paid","Processing","Completed"];
+const METHODS={esewa:"eSewa / Fonepay",khalti:"Khalti",bank:"Bank Transfer",bank_mbl:"Bank: Machhapuchchhre",bank_nabil:"Bank: Nabil",bank_sanima:"Bank: Sanima",bank_sajilo:"Bank: Sanima"};
+const PAGES=[["dashboard","▦","Dashboard"],["orders","▤","Orders"],["payments","＄","Payments"],["products","◇","Products"],["customers","♙","Customers"],["purchases","⇩","Purchases"],["reports","▥","Reports"],["settings","⚙","Settings"]];
+let orders=[],products=[],purchases=[],settings={},page="dashboard",busy=false,editP=null,editB=null,oq="",ost="",cq="",rg={preset:"30",from:"",to:""};
+const R={};
+const num=v=>Number(v)||0;
+const sum=(a,f)=>a.reduce((t,x)=>t+num(f(x)),0);
+const money=v=>"NPR "+num(v).toLocaleString("en-IN",{maximumFractionDigits:2});
+const dkey=d=>new Date(d).toLocaleDateString("en-CA");
+const today=()=>dkey(new Date());
+const dAgo=n=>{const x=new Date();x.setDate(x.getDate()-n);return dkey(x)};
+const monthStart=()=>{const x=new Date();return dkey(new Date(x.getFullYear(),x.getMonth(),1))};
+const sd=o=>dkey(o.paid_at||o.created_at);
+const sold=()=>orders.filter(o=>SOLD.includes(o.status));
+const inR=(d,f,t)=>(!f||d>=f)&&(!t||d<=t);
+const fdate=d=>d?new Date(d).toLocaleString():"—";
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function btn(text,cls,fn){const b=el("button","btn "+cls,text);b.type="button";b.addEventListener("click",fn);return b}
+function say(t,err){const e=$("globalMessage");e.textContent=t||"";e.className=err?"error":"muted"}
+async function rpc(n,a){const{data,error}=await db.rpc(n,a||{});if(error)throw error;return data}
+function badge(s){const k=String(s||"").toLowerCase();const c=(k==="paid"||k==="completed")?"st-completed":k==="processing"?"st-processing":(k==="rejected"||k==="failed")?"st-failed":"st-pending";return el("span","status "+c,s||"Pending")}
+function metric(ic,label,val,sub,neg){const c=el("div","card");c.append(el("div","ico",ic),el("div","metric-label",label),el("div","metric"+(neg?" neg":""),String(val)),el("div","muted",sub||""));return c}
+function field(label,node,cls){const d=el("div",cls||"");d.append(el("label",null,label),node);return d}
+function inp(type,val,ph){const i=el("input");i.type=type;if(type==="number"){i.min="0";i.step="any";i.inputMode="decimal"}i.value=val??"";if(ph)i.placeholder=ph;return i}
+function sel(opts,val){const s=el("select");opts.forEach(o=>{const x=el("option",null,Array.isArray(o)?o[1]:o);x.value=Array.isArray(o)?o[0]:o;s.appendChild(x)});if(val!==undefined)s.value=val;return s}
+function tbl(heads,rows,empty){
+  const w=el("div","table-wrap"),t=el("table"),th=el("thead"),tr=el("tr");
+  heads.forEach(h=>tr.appendChild(el("th",null,h)));th.appendChild(tr);
+  const tb=el("tbody");
+  if(!rows.length){const r=el("tr"),c=el("td","empty",empty||"Nothing here yet.");c.colSpan=heads.length;r.appendChild(c);tb.appendChild(r)}
+  rows.forEach(r=>{const tr2=el("tr");r.forEach(c=>{const td=el("td");if(c instanceof Node)td.appendChild(c);else td.textContent=c;tr2.appendChild(td)});tb.appendChild(tr2)});
+  t.append(th,tb);w.appendChild(t);return w;
+}
+function csv(name,heads,rows){
+  const c=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
+  const t=[heads.map(c).join(","),...rows.map(r=>r.map(c).join(","))].join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv;charset=utf-8"}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function summary(f,t){
+  const s=sold().filter(o=>inR(sd(o),f,t)),p=purchases.filter(x=>inR(x.bought_on,f,t));
+  const sales=sum(s,o=>o.price),buy=sum(p.filter(x=>x.kind==="purchase"),x=>x.amount),exp=sum(p.filter(x=>x.kind==="expense"),x=>x.amount);
+  return{s,p,orders:s.length,sales,margin:sum(s,o=>num(o.price)-num(o.cost)),buy,exp,net:sales-buy-exp};
+}
+function groupSum(arr,keyFn){const m={};arr.forEach(o=>{const k=keyFn(o)||"—";const g=m[k]||(m[k]={k,n:0,sales:0,margin:0});g.n++;g.sales+=num(o.price);g.margin+=num(o.price)-num(o.cost)});return Object.values(m).sort((a,b)=>b.sales-a.sales)}
+
+/* ---------- auth + loading ---------- */
+async function start(){
+  const ok=await loadAll();if(!ok)return false;
+  $("loginScreen").classList.add("hidden");$("app").classList.remove("hidden");
+  const{data}=await db.auth.getUser();$("welcome").textContent="Logged in: "+((data&&data.user&&data.user.email)||"Admin");
+  buildNav();setPage(page);
+  clearInterval(window._t);window._t=setInterval(async()=>{if(!busy&&["dashboard","orders","payments"].includes(page)){try{orders=await rpc("admin_list_payment_orders",{p_status:null});buildNav();R[page]()}catch{}}},45000);
+  return true;
+}
+async function loadAll(){
+  say("Loading...");let notAdmin=false;const errs=[];
+  await Promise.all([
+    rpc("admin_list_payment_orders",{p_status:null}).then(d=>{orders=d||[]}).catch(e=>{if(String(e.message).includes("Not authorized"))notAdmin=true;errs.push("Orders: "+e.message)}),
+    rpc("admin_list_products").then(d=>{products=d||[]}).catch(e=>errs.push("Products: "+e.message+" (run admin_v2.sql)")),
+    rpc("admin_list_purchases").then(d=>{purchases=d||[]}).catch(e=>errs.push("Purchases: "+e.message+" (run admin_v3.sql)")),
+    rpc("admin_get_settings").then(d=>{settings=d||{}}).catch(e=>errs.push("Settings: "+e.message+" (run admin_v3.sql)"))
+  ]);
+  if(notAdmin)return false;
+  say(errs.join(" | "),errs.length>0);
+  if(errs.length&&!orders.length&&errs[0].startsWith("Orders:"))return false;
+  return true;
+}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!db){$("loginMessage").textContent="Supabase failed to load. Check your internet.";return}
+  $("loginBtn").disabled=true;$("loginMessage").textContent="Signing in...";
+  const{error}=await db.auth.signInWithPassword({email:$("email").value.trim(),password:$("password").value});
+  if(error){$("loginMessage").textContent=error.message;$("loginBtn").disabled=false;return}
+  const ok=await start();
+  if(!ok){await db.auth.signOut();$("loginMessage").textContent="This account is not an admin (or orders could not be loaded)."}else{$("password").value="";$("loginMessage").textContent=""}
+  $("loginBtn").disabled=false;
+});
+$("logoutBtn").addEventListener("click",async()=>{clearInterval(window._t);await db.auth.signOut();orders=[];products=[];purchases=[];$("app").classList.add("hidden");$("loginScreen").classList.remove("hidden")});
+$("reloadBtn").addEventListener("click",async()=>{await loadAll();buildNav();R[page]()});
+
+/* ---------- navigation ---------- */
+function buildNav(){
+  const box=$("navList");box.replaceChildren();
+  const review=orders.filter(o=>o.status==="Payment Review").length;
+  PAGES.forEach(([k,ic,l])=>{
+    const b=el("button","nav"+(k===page?" active":""));b.type="button";b.append(el("span",null,ic),el("span",null,l));
+    if(k==="payments"&&review)b.appendChild(el("b",null,String(review)));
+    b.addEventListener("click",()=>setPage(k));box.appendChild(b);
+  });
+}
+function setPage(p){
+  page=p;buildNav();
+  document.querySelectorAll(".page").forEach(s=>s.classList.add("hidden"));
+  $("page-"+p).classList.remove("hidden");
+  $("pageTitle").textContent=PAGES.find(x=>x[0]===p)[2];
+  R[p]();window.scrollTo(0,0);
+}
+
+/* ---------- order actions ---------- */
+async function act(o,status,q){
+  if(busy||!confirm(q))return;busy=true;say("Updating...");
+  try{await rpc("admin_set_payment_status",{p_id:o.id,p_status:status});orders=await rpc("admin_list_payment_orders",{p_status:null});say("Order "+o.code+" marked "+status+".");buildNav();R[page]()}
+  catch(e){say(e.message,true)}finally{busy=false}
+}
+function approve(o){act(o,"Paid","Approve order "+o.code+"?\n\nAmount: "+money(o.price)+"\nReference: "+o.txn_ref+"\n\nHave you checked this payment in your "+(METHODS[o.method]||o.method)+" app and does the amount match?")}
+function actions(o){
+  const a=el("div","acts");a.style.marginTop="0";
+  const done="Mark "+o.code+" as Completed? Only after you topped up the player.";
+  if(o.status==="Payment Review")a.append(btn("Approve","btn-ok sm",()=>approve(o)),btn("Reject","btn-danger sm",()=>act(o,"Rejected","Reject order "+o.code+"?")));
+  else if(o.status==="Awaiting Payment")a.append(btn("Reject","btn-danger sm",()=>act(o,"Rejected","Reject order "+o.code+"?")));
+  else if(o.status==="Paid")a.append(btn("Processing","btn-secondary sm",()=>act(o,"Processing","Mark "+o.code+" as Processing?")),btn("Complete","btn-ok sm",()=>act(o,"Completed",done)));
+  else if(o.status==="Processing")a.append(btn("Complete","btn-ok sm",()=>act(o,"Completed",done)));
+  return a;
+}
+function copyCell(text){const s=el("span",null,text||"—");if(text){const c=btn("Copy","btn-secondary sm",async()=>{try{await navigator.clipboard.writeText(text);c.textContent="Copied"}catch{c.textContent="Select"}setTimeout(()=>c.textContent="Copy",1500)});c.style.marginLeft="6px";s.appendChild(c)}return s}
+function orderRows(list){return list.map(o=>[o.code,copyCell(o.uid),(o.game||"—")+(o.server?" · "+o.server:""),o.package||"—",money(o.price),METHODS[o.method]||o.method,o.txn_ref?copyCell(o.txn_ref):"—",badge(o.status),fdate(o.created_at),actions(o)])}
+const ORD_HEADS=["Order","Player UID","Game","Package","Amount","Method","Reference","Status","Date","Action"];
+
+/* ---------- Dashboard ---------- */
+R.dashboard=()=>{
+  const box=$("page-dashboard");box.replaceChildren();
+  const t=today(),T=summary(t,t),W=summary(dAgo(6),t),M=summary(monthStart(),t),A=summary("","");
+  const review=orders.filter(o=>o.status==="Payment Review").length,cnt=s=>orders.filter(o=>o.status===s).length;
+  if(review){const n=el("div","notice","⚠️ "+review+" payment(s) waiting for your review. ");n.appendChild(btn("Review now","btn-ok sm",()=>setPage("payments")));box.appendChild(n)}
+  const g=el("div","grid");
+  g.append(metric("💰","Today's sales",money(T.sales),T.orders+" paid order(s)"),metric("📅","Last 7 days",money(W.sales),W.orders+" paid order(s)"),metric("🗓","This month",money(M.sales),M.orders+" paid order(s)"),metric("🏦","All time",money(A.sales),A.orders+" paid order(s)"));
+  const g2=el("div","grid section");
+  g2.append(metric("🔎","To review",review,"payments"),metric("⏳","Processing",cnt("Processing"),"orders to complete"),metric("📈","Margin (month)",money(M.margin),"price − cost"),metric("🧾","Net profit (month)",money(M.net),"sales − purchases − expenses",M.net<0));
+  const c1=el("div","card section");c1.append(el("h2",null,"Sales – last 14 days"),chart());
+  const c2=el("div","card section");c2.appendChild(el("h2",null,"Recent orders"));
+  c2.appendChild(tbl(["Order","Package","Amount","Status","Date"],orders.slice(0,6).map(o=>[o.code,o.package||"—",money(o.price),badge(o.status),fdate(o.created_at)]),"No orders yet."));
+  box.append(g,g2,c1,c2);
+};
+function chart(){
+  const days=[];for(let i=13;i>=0;i--)days.push(dAgo(i));
+  const m={};sold().forEach(o=>{const k=sd(o);m[k]=(m[k]||0)+num(o.price)});
+  const vals=days.map(k=>m[k]||0),max=Math.max(1,...vals),w=el("div","chart");
+  days.forEach((k,i)=>{const c=el("div","col"),b=el("div","bar");b.style.height=Math.max(3,vals[i]/max*100)+"%";b.title=k+": "+money(vals[i]);c.append(b,el("span",null,k.slice(8)));w.appendChild(c)});
+  return w;
+}
+
+/* ---------- Orders ---------- */
+R.orders=()=>{
+  const box=$("page-orders");box.replaceChildren();
+  const c=el("div","card");c.appendChild(el("h2",null,"Customer Orders"));
+  const q=inp("search",oq,"Search order, UID, package, reference…"),st=sel([["","All status"],"Awaiting Payment","Payment Review","Paid","Processing","Completed","Rejected"],ost);
+  const wrap=el("div");
+  const draw=()=>{
+    const k=oq.trim().toLowerCase();
+    const list=orders.filter(o=>(!ost||o.status===ost)&&(!k||[o.code,o.uid,o.package,o.game,o.txn_ref,o.server].some(v=>String(v??"").toLowerCase().includes(k))));
+    wrap.replaceChildren(el("div","muted",list.length+" order(s)"),tbl(ORD_HEADS,orderRows(list.slice(0,300)),"No orders found."));
+  };
+  q.addEventListener("input",()=>{oq=q.value;draw()});st.addEventListener("change",()=>{ost=st.value;draw()});
+  const ex=btn("Export CSV","btn-secondary",()=>csv("nexora-orders.csv",["Order","UID","Game","Server","Package","Amount","Cost","Method","Reference","Status","Created","Paid at"],orders.map(o=>[o.code,o.uid,o.game,o.server,o.package,o.price,o.cost,METHODS[o.method]||o.method,o.txn_ref,o.status,o.created_at,o.paid_at])));
+  const bar=el("div","bar-row");bar.append(q,st,ex);
+  c.append(bar,wrap);box.appendChild(c);draw();
+};
+
+/* ---------- Payments ---------- */
+R.payments=()=>{
+  const box=$("page-payments");box.replaceChildren();
+  const q=orders.filter(o=>o.status==="Payment Review"),w=orders.filter(o=>o.status==="Awaiting Payment");
+  const c1=el("div","card");c1.appendChild(el("h2",null,"Payments to verify ("+q.length+")"));
+  c1.appendChild(el("div","notice","Open your Khalti / eSewa / bank app first. Approve only if the money has arrived with the same amount and the same reference number."));
+  c1.appendChild(tbl(ORD_HEADS,orderRows(q),"No payments waiting for review."));
+  const c2=el("div","card section");c2.appendChild(el("h2",null,"Waiting for customer payment ("+w.length+")"));
+  c2.appendChild(tbl(ORD_HEADS,orderRows(w),"None."));
+  const c3=el("div","card section");c3.appendChild(el("h2",null,"Received by payment method"));
+  c3.appendChild(tbl(["Method","Orders","Amount"],groupSum(sold(),o=>METHODS[o.method]||o.method).map(x=>[x.k,x.n,money(x.sales)]),"No paid orders yet."));
+  box.append(c1,c2,c3);
+};
+
+/* ---------- Products ---------- */
+const normGame=g=>/pubg|bgmi/i.test(g||"")?"PUBG":"Free Fire";
+async function saveProduct(p,v){
+  if(busy)return;busy=true;
+  try{await rpc("admin_save_product",{p_id:p?String(p.id):null,p_game:v.game,p_name:v.name.trim(),p_price:Number(v.price),p_cost:Number(v.cost||0),p_active:v.active});
+    products=await rpc("admin_list_products");editP=null;say(p?"Saved. New price applies to new orders only.":"Package added.");R.products()}
+  catch(e){say(e.message,true)}finally{busy=false}
+}
+R.products=()=>{
+  const box=$("page-products");box.replaceChildren();
+  const p=editP,c=el("div","card");c.appendChild(el("h2",null,p?"Edit package #"+p.id:"Add new package"));
+  const g=sel(["Free Fire","PUBG"],p?normGame(p.game):"Free Fire"),n=inp("text",p?p.package_name:"","e.g. 600 Diamonds"),pr=inp("number",p?p.price:"","Selling price"),co=inp("number",p?p.cost:"","Your cost"),vis=sel([["1","Active – show on website"],["0","Hidden"]],p&&!p.active?"0":"1");
+  const f=el("div","form-grid");f.append(field("Game",g),field("Package name",n),field("Selling price (NPR)",pr),field("Your cost (NPR)",co),field("Visibility",vis,"full"));
+  const acts=el("div","acts");
+  acts.appendChild(btn(p?"Update package":"Add package","btn-ok",()=>{if(!n.value.trim()||pr.value===""){say("Enter a package name and a selling price.",true);return}saveProduct(p,{game:g.value,name:n.value,price:pr.value,cost:co.value,active:vis.value==="1"})}));
+  if(p)acts.appendChild(btn("Cancel","btn-secondary",()=>{editP=null;R.products()}));
+  c.append(f,acts,el("p","muted","Changing a price affects new orders only. Cost is private and is used for margin."));
+  const list=el("div","pgrid");
+  products.forEach(x=>{
+    const k=el("div","pcard");k.append(el("div","muted",x.game),el("h3",null,x.package_name),el("div","pprice",money(x.price)),el("div","muted","Cost "+money(x.cost)+" · Margin "+money(num(x.price)-num(x.cost))),badge(x.active?"Completed":"Rejected"));
+    k.lastChild.textContent=x.active?"ACTIVE":"HIDDEN";k.lastChild.style.marginTop="8px";
+    const a=el("div","acts");
+    a.append(btn("Edit","sm",()=>{editP=x;R.products();window.scrollTo(0,0)}),btn(x.active?"Hide":"Show","btn-secondary sm",()=>saveProduct(x,{game:normGame(x.game),name:x.package_name,price:x.price,cost:x.cost,active:!x.active})));
+    k.appendChild(a);list.appendChild(k);
+  });
+  const c2=el("div","card section");c2.appendChild(el("h2",null,"All packages ("+products.length+")"));
+  c2.appendChild(products.length?list:el("div","empty","No packages yet."));
+  box.append(c,c2);
+};
+
+/* ---------- Customers ---------- */
+function customers(){
+  const m={};
+  orders.forEach(o=>{const k=o.uid+"|"+(o.game||"");const c=m[k]||(m[k]={uid:o.uid,game:o.game||"—",server:o.server||"",n:0,paid:0,spent:0,last:o.created_at});
+    c.n++;if(SOLD.includes(o.status)){c.paid++;c.spent+=num(o.price)}if(o.created_at>c.last)c.last=o.created_at});
+  return Object.values(m).sort((a,b)=>b.spent-a.spent||b.n-a.n);
+}
+R.customers=()=>{
+  const box=$("page-customers");box.replaceChildren();
+  const all=customers(),c=el("div","card");c.appendChild(el("h2",null,"Customers ("+all.length+")"));
+  const q=inp("search",cq,"Search UID or game…"),wrap=el("div");
+  const rows=l=>l.map(x=>[copyCell(x.uid),x.game,x.server||"—",x.n,x.paid,money(x.spent),fdate(x.last)]);
+  const draw=()=>{const k=cq.trim().toLowerCase();const l=all.filter(x=>!k||(String(x.uid)+" "+x.game).toLowerCase().includes(k));wrap.replaceChildren(tbl(["Player UID","Game","Server","Orders","Paid orders","Total spent","Last order"],rows(l.slice(0,300)),"No customers yet."))};
+  q.addEventListener("input",()=>{cq=q.value;draw()});
+  const bar=el("div","bar-row");bar.append(q,btn("Export CSV","btn-secondary",()=>csv("nexora-customers.csv",["UID","Game","Server","Orders","Paid orders","Total spent","Last order"],all.map(x=>[x.uid,x.game,x.server,x.n,x.paid,x.spent,x.last]))));
+  c.append(bar,wrap,el("p","muted","Customers are grouped by Player UID and game, from all orders. Top spenders are listed first."));
+  box.appendChild(c);draw();
+};
+
+/* ---------- Purchases & expenses ---------- */
+async function savePurchase(b,v){
+  if(busy)return;busy=true;
+  try{await rpc("admin_save_purchase",{p_id:b?b.id:null,p_kind:v.kind,p_date:v.date,p_party:v.party.trim(),p_item:v.item.trim(),p_game:v.game,p_qty:num(v.qty),p_amount:Number(v.amount),p_note:v.note.trim()});
+    purchases=await rpc("admin_list_purchases");editB=null;say(b?"Entry updated.":"Entry added.");R.purchases()}
+  catch(e){say(e.message,true)}finally{busy=false}
+}
+R.purchases=()=>{
+  const box=$("page-purchases");box.replaceChildren();
+  const b=editB,c=el("div","card");c.appendChild(el("h2",null,b?"Edit entry #"+b.id:"Add purchase / expense"));
+  c.appendChild(el("p","muted","Purchase = what you pay your supplier for diamonds, UC or vouchers. Expense = other costs (internet, ads, salary…)."));
+  const kind=sel([["purchase","Purchase (stock from supplier)"],["expense","Expense"]],b?b.kind:"purchase"),dt=inp("date",b?b.bought_on:today()),party=inp("text",b?b.party:"","Supplier / category"),item=inp("text",b?b.item:"","e.g. 1000 Diamonds"),game=sel([["","— none —"],"Free Fire","PUBG"],b&&b.game?normGame(b.game):""),qty=inp("number",b?b.quantity:"","Quantity"),amt=inp("number",b?b.amount:"","Total amount paid (NPR)"),note=inp("text",b?b.note:"","Note (optional)");
+  const f=el("div","form-grid");f.append(field("Type",kind),field("Date",dt),field("Supplier / category",party),field("Item",item),field("Game",game),field("Quantity",qty),field("Amount (NPR)",amt),field("Note",note));
+  const acts=el("div","acts");
+  acts.appendChild(btn(b?"Update entry":"Add entry","btn-ok",()=>{if(amt.value===""){say("Enter the amount.",true);return}savePurchase(b,{kind:kind.value,date:dt.value||today(),party:party.value,item:item.value,game:game.value,qty:qty.value,amount:amt.value,note:note.value})}));
+  if(b)acts.appendChild(btn("Cancel","btn-secondary",()=>{editB=null;R.purchases()}));
+  c.append(f,acts);
+  const M=summary(monthStart(),today()),g=el("div","grid section");
+  g.append(metric("⇩","Purchases (month)",money(M.buy),"from suppliers"),metric("🧾","Expenses (month)",money(M.exp),"other costs"),metric("💰","Sales (month)",money(M.sales),M.orders+" paid order(s)"),metric("📈","Net profit (month)",money(M.net),"sales − purchases − expenses",M.net<0));
+  const c2=el("div","card section");c2.appendChild(el("h2",null,"All entries ("+purchases.length+")"));
+  c2.appendChild(tbl(["Date","Type","Supplier / category","Item","Game","Qty","Amount","Note","Action"],purchases.map(x=>{
+    const a=el("div","acts");a.style.marginTop="0";
+    a.append(btn("Edit","btn-secondary sm",()=>{editB=x;R.purchases();window.scrollTo(0,0)}),btn("Delete","btn-danger sm",async()=>{if(!confirm("Delete this entry?"))return;try{await rpc("admin_delete_purchase",{p_id:x.id});purchases=await rpc("admin_list_purchases");say("Entry deleted.");R.purchases()}catch(e){say(e.message,true)}}));
+    return[x.bought_on,x.kind==="purchase"?"Purchase":"Expense",x.party||"—",x.item||"—",x.game||"—",x.quantity||"—",money(x.amount),x.note||"—",a]}),"No entries yet."));
+  c2.appendChild(btn("Export CSV","btn-secondary sm",()=>csv("nexora-purchases.csv",["Date","Type","Supplier","Item","Game","Qty","Amount","Note"],purchases.map(x=>[x.bought_on,x.kind,x.party,x.item,x.game,x.quantity,x.amount,x.note]))));
+  c2.lastChild.style.marginTop="12px";
+  box.append(c,g,c2);
+};
+
+/* ---------- Reports ---------- */
+function rangeDates(){
+  const t=today();
+  if(rg.preset==="today")return[t,t];if(rg.preset==="7")return[dAgo(6),t];if(rg.preset==="30")return[dAgo(29),t];
+  if(rg.preset==="month")return[monthStart(),t];if(rg.preset==="all")return["",""];return[rg.from,rg.to];
+}
+R.reports=()=>{
+  const box=$("page-reports");box.replaceChildren();
+  const[f,t]=rangeDates(),S=summary(f,t);
+  const c0=el("div","card noprint");c0.appendChild(el("h2",null,"Sales, purchase & profit report"));
+  const pre=sel([["today","Today"],["7","Last 7 days"],["30","Last 30 days"],["month","This month"],["all","All time"],["custom","Custom dates"]],rg.preset);
+  const d1=inp("date",rg.preset==="custom"?rg.from:f),d2=inp("date",rg.preset==="custom"?rg.to:t);
+  pre.addEventListener("change",()=>{rg.preset=pre.value;R.reports()});
+  const upd=()=>{rg.preset="custom";rg.from=d1.value;rg.to=d2.value;R.reports()};d1.addEventListener("change",upd);d2.addEventListener("change",upd);
+  const bar=el("div","bar-row");bar.append(pre,d1,d2,btn("Print / PDF","btn-secondary",()=>window.print()));c0.appendChild(bar);
+  const head=el("p","muted","Period: "+(f||"beginning")+" → "+(t||"today")+". Sales count orders that are Paid, Processing or Completed.");
+  const g=el("div","grid");
+  g.append(metric("💰","Sales",money(S.sales),S.orders+" paid order(s)"),metric("⇩","Purchases",money(S.buy),"from suppliers"),metric("🧾","Expenses",money(S.exp),"other costs"),metric("📊","Net profit",money(S.net),"sales − purchases − expenses",S.net<0));
+  const g2=el("div","grid section");
+  g2.append(metric("📈","Gross margin",money(S.margin),"price − product cost"),metric("🧮","Avg order",money(S.orders?S.sales/S.orders:0),"per paid order"),metric("✅","Completed",S.s.filter(o=>o.status==="Completed").length,"orders"),metric("⏳","Not delivered yet",S.s.filter(o=>o.status!=="Completed").length,"paid, not completed"));
+  const sec=(title,heads,rows,empty)=>{const c=el("div","card section");c.appendChild(el("h2",null,title));c.appendChild(tbl(heads,rows,empty));return c};
+  const gr=a=>a.map(x=>[x.k,x.n,money(x.sales),money(x.margin)]);
+  const days=groupSum(S.s,o=>sd(o)).sort((a,b)=>a.k<b.k?1:-1);
+  const inRange=orders.filter(o=>inR(dkey(o.created_at),f,t)),stc={};inRange.forEach(o=>{stc[o.status]=(stc[o.status]||0)+1});
+  const exBtn=btn("Export sales CSV","btn-secondary noprint",()=>csv("nexora-sales-report.csv",["Order","Date","Game","Package","UID","Method","Amount","Cost","Margin","Status"],S.s.map(o=>[o.code,sd(o),o.game,o.package,o.uid,METHODS[o.method]||o.method,o.price,o.cost,num(o.price)-num(o.cost),o.status])));
+  exBtn.style.marginTop="14px";
+  box.append(c0,head,g,g2,
+    sec("Sales by game",["Game","Orders","Sales","Margin"],gr(groupSum(S.s,o=>normGame(o.game))),"No sales in this period."),
+    sec("Top packages",["Package","Orders","Sales","Margin"],gr(groupSum(S.s,o=>(o.game?normGame(o.game)+" · ":"")+o.package).slice(0,15)),"No sales in this period."),
+    sec("Sales by payment method",["Method","Orders","Sales","Margin"],gr(groupSum(S.s,o=>METHODS[o.method]||o.method)),"No sales in this period."),
+    sec("Sales by day",["Date","Orders","Sales","Margin"],gr(days),"No sales in this period."),
+    sec("Purchases & expenses",["Date","Type","Supplier / category","Item","Amount"],S.p.map(x=>[x.bought_on,x.kind==="purchase"?"Purchase":"Expense",x.party||"—",x.item||"—",money(x.amount)]),"No entries in this period."),
+    sec("Orders created in this period, by status",["Status","Orders"],Object.entries(stc).map(([k,v])=>[badge(k),v]),"No orders."),
+    exBtn);
+};
+
+/* ---------- Settings ---------- */
+R.settings=()=>{
+  const box=$("page-settings");box.replaceChildren();
+  const c=el("div","card");c.appendChild(el("h2",null,"WhatsApp support number"));
+  c.appendChild(el("p","muted","Country code + number, digits only (example 97798XXXXXXXX). It appears on the customer website as the WhatsApp button."));
+  const wa=inp("tel",settings.whatsapp||"","97798XXXXXXXX");
+  c.append(field("WhatsApp number",wa),btn("Save number","btn-ok",async()=>{
+    const n=wa.value.replace(/\D/g,"");if(busy)return;busy=true;
+    try{await rpc("admin_save_setting",{p_key:"whatsapp",p_value:n});settings.whatsapp=n;say(n?"WhatsApp number saved. It is now live on the website.":"WhatsApp number removed.")}catch(e){say(e.message,true)}finally{busy=false}}));
+  const c2=el("div","card section");c2.appendChild(el("h2",null,"Change my password"));
+  const p1=inp("password","","New password (min 8 characters)"),p2=inp("password","","Repeat new password");p1.autocomplete=p2.autocomplete="new-password";
+  c2.append(field("New password",p1),field("Repeat password",p2),btn("Change password","btn-secondary",async()=>{
+    if(p1.value.length<8){say("Password must be at least 8 characters.",true);return}if(p1.value!==p2.value){say("Passwords do not match.",true);return}
+    const{error}=await db.auth.updateUser({password:p1.value});if(error){say(error.message,true);return}p1.value=p2.value="";say("Password changed.")}));
+  const c3=el("div","card section");c3.appendChild(el("h2",null,"About"));
+  c3.append(el("p",null,"Store: NEXORA"),el("p",null,"Database: Supabase"),el("p","muted","Never put a Supabase service-role secret in website code. Orders: "+orders.length+" · Packages: "+products.length+" · Purchase entries: "+purchases.length));
+  box.append(c,c2,c3);
+};
+
+(async()=>{if(!db){$("loginMessage").textContent="Supabase failed to load.";return}const{data}=await db.auth.getSession();if(data&&data.session){const ok=await start();if(!ok){await db.auth.signOut()}}})();
+</script>
+</body>
+</html>
