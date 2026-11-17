@@ -138,9 +138,37 @@ summary{font-weight:600;font-size:17px;cursor:pointer}details p{margin:10px 0 0;
 @media(max-width:800px){.how{grid-template-columns:repeat(2,minmax(0,1fr))}.feats{grid-template-columns:1fr}}
 </style></head>
 <body>
-<header><div class="container nav"><a class="brand" href="#home"><span class="mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Nexora logo"><defs><linearGradient id="gh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b8cff"/><stop offset="1" stop-color="#22e0ff"/></linearGradient><linearGradient id="bh" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f2a5c"/><stop offset="1" stop-color="#050a18"/></linearGradient><radialGradient id="oh" cx=".8" cy=".15" r=".7"><stop offset="0" stop-color="#2b8cff" stop-opacity=".55"/><stop offset="1" stop-color="#2b8cff" stop-opacity="0"/></radialGradient></defs><rect width="512" height="512" rx="120" fill="url(#bh)"/><rect width="512" height="512" rx="120" fill="url(#oh)"/><rect x="6" y="6" width="500" height="500" rx="114" fill="none" stroke="#2a4f96" stroke-width="6"/><path d="M148 372V140h52l112 148V140h52v232h-52L200 224v148z" fill="url(#gh)"/><polygon points="404,70 438,104 404,152 370,104" fill="#7fe8ff"/><polygon points="404,70 438,104 370,104" fill="#ffffff" fill-opacity=".92"/></svg></span><span><b>NEXORA</b><small>FAST • SECURE • RELIABLE</small></span></a><div class="hright"><a class="wallet-pill" href="#wallet">👛 0/-</a><a class="avatar" href="#profile">G</a></div></div></header>
+<header><div class="container nav"><a class="brand" href="#home">
+<span class="mark">
+  <svg xmlns="http://www.w3.org/2000/svg"
+       viewBox="0 0 512 512"
+       role="img"
+       aria-label="RIJUU Gaming Store logo">
+
+    <defs>
+      <linearGradient id="rijuuLogo" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#2b8cff"/>
+        <stop offset="1" stop-color="#22e0ff"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="512" height="512" rx="120" fill="#08152f"/>
+    <rect x="6" y="6" width="500" height="500"
+          rx="114" fill="none"
+          stroke="#2a4f96" stroke-width="6"/>
+
+    <text x="256" y="305"
+          text-anchor="middle"
+          font-size="175"
+          font-weight="900"
+          font-family="Arial"
+          fill="url(#rijuuLogo)">RJ</text>
+  </svg>
+</span>
+<span><b>RIJUU GAMING</b>
+<small>GAMING TOP-UP STORE</small></span></a><div class="hright"><a class="wallet-pill" href="#wallet">👛 0/-</a><a class="avatar" href="#profile">G</a></div></div></header>
 <main>
-<h1 class="sr">Nexora Top-Up Nepal — Free Fire Diamonds and PUBG / BGMI UC Top-Up</h1>
+<h1 class="sr">RIJUU GAMING STORE — Free Fire Diamonds and PUBG / BGMI UC Top-Up</h1>
 <div class="container" id="home"><div class="banner"><h2>Gaming Top-Up</h2><p>Free Fire diamonds and PUBG / BGMI UC, ordered in a few taps. Pay with eSewa, Fonepay, Khalti or bank transfer.</p><span class="tag">Verified payments · Real top-up</span></div></div>
 
 <section id="games"><div class="container"><h2 class="title">Select Items</h2><div class="tabs"><button class="tab on" type="button"><i>🎮</i>Games</button><button class="tab soon" type="button" disabled><i>📺</i>Subscription</button><button class="tab soon" type="button" disabled><i>🎟</i>Voucher</button></div>
@@ -191,7 +219,7 @@ summary{font-weight:600;font-size:17px;cursor:pointer}details p{margin:10px 0 0;
 <section id="notifications"><div class="container"><h2 class="title">Notifications</h2><div class="feature-panel"><h3>Order updates</h3><p class="hint">Use “Refresh status” in My Orders to see if your payment was approved.</p><a class="pill" href="#history">Go to Orders ↗</a></div></div></section>
 <section id="profile"><div class="container"><h2 class="title">Profile</h2><div class="feature-panel"><div style="font-size:30px">👤</div><h3>You are browsing as a guest</h3><p class="hint">Your order history is stored in this browser only.</p><a class="pill" href="#history">View my orders ↗</a></div></div></section>
 <section id="support"><div class="container"><div class="support"><div><div style="font-size:38px">💬</div><h2>Need help?</h2><p id="waText">WhatsApp support will be available after a support number is configured.</p></div><a class="pill" id="waPill" href="#support">Support number not configured</a></div></div></section>
-</main><footer><div class="container"><strong style="color:white">Nexora Top-Up Nepal.</strong><br>Independent project. Not affiliated with game publishers.<br>Top-up is done only after the admin verifies your payment.</div></footer>
+</main><footer><div class="container"><strong style="color:white">RIJUU GAMING STORE.</strong><br>Independent project. Not affiliated with game publishers.<br>Top-up is done only after the admin verifies your payment.</div></footer>
 <a class="wa" id="waBtn" href="#support" aria-label="Support">💬</a>
 <nav class="bottom-nav" aria-label="Main navigation">
 <a class="active" href="#home"><span class="nav-icon">⌂</span><span>Home</span></a>
@@ -376,7 +404,7 @@ function downloadQR(){
     x.imageSmoothingEnabled=false;x.drawImage(img,pad,pad,img.width*sc,img.height*sc);
     c.toBlob(b=>{
       if(!b){$("dlNote").textContent="Could not create the file. Press and hold the QR image and choose Save image.";return}
-      const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="NEXORA-"+current.method+"-QR.png";
+      const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="RIJUU-"+current.method+"-QR.png";<h1 class="sr">RIJUU GAMING STORE — Free Fire Diamonds and PUBG / BGMI UC Top-Up</h1>;
       document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
       $("dlNote").textContent="QR saved to your phone (check Downloads / Gallery). If nothing downloaded, press and hold the QR image and choose Save image.";
     },"image/png");
