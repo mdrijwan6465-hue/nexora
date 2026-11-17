@@ -323,7 +323,7 @@ function renderMethods(){
     b.addEventListener("click",()=>{if(busy||current)return;fn();renderMethods();renderSummary()});
     box.appendChild(b);
   };
-  ["esewa","khalti"].forEach(k=>mk(PAY[k].icon,PAY[k].name,PAY[k].sub,method===k,()=>{method=k;bankOpen=false}));
+  ["esewa",].forEach(k=>mk(PAY[k].icon,PAY[k].name,PAY[k].sub,method===k,()=>{method=k;bankOpen=false}));
   mk("\uD83C\uDFE6","Bank Transfer","Choose your bank, then scan its QR",inBank,()=>{bankOpen=true;if(method&&PAY[method].group!=="bank")method=null});
   if(inBank)Object.keys(PAY).filter(k=>PAY[k].group==="bank").forEach(k=>mk("\uD83C\uDFDB\uFE0F",PAY[k].name,PAY[k].sub,method===k,()=>{method=k},true));
 }
